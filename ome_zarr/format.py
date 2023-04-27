@@ -6,6 +6,8 @@ from typing import Any, Dict, Iterator, List, Optional
 
 from zarr.storage import FSStore
 
+import os
+
 LOGGER = logging.getLogger("ome_zarr.format")
 
 
@@ -347,16 +349,6 @@ class FormatV04H(FormatV04):
     def version(self) -> str:
         return "0.4H"
     
-    def __init__(self, storage_options: dict=None):
-        """
-        Creates a storage passing storage_options to FFStore
-        """
-        super().__init__()
-        if storage_options is not None:
-            print("storage:", self.STORAGE_OPTIONS)
-            FormatV04H.STORAGE_OPTIONS.update(storage_options)
-
-    
     def init_store(self, path: str, mode: str = "r") -> FSStore:
         """
         Not ideal. Stores should remain hidden
@@ -375,11 +367,16 @@ class FormatV04H(FormatV04):
         if mkdir:
             kwargs["auto_mkdir"] = True
 
+        bearer = os.environ["MusiCloud"]
+
+        storage_options = {'headers': {'Authorization': f'Bearer {bearer}'}}
+
+
         store = FSStore(
             path,
             mode=mode,
             **kwargs,
-            **FormatV04H.STORAGE_OPTIONS
+            **storage_options
         )  # TODO: open issue for using Path
         LOGGER.debug("Created nested FSStore(%s, %s, %s)", path, mode, kwargs)
         return store   
