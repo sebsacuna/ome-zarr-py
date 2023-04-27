@@ -337,4 +337,52 @@ class FormatV04(FormatV03):
                         )
 
 
-CurrentFormat = FormatV04
+class FormatV04H(FormatV04):
+    """
+    Introduces a 'storage_options' dict that's used in FFStore.
+    """
+    STORAGE_OPTIONS = {}
+
+    @property
+    def version(self) -> str:
+        return "0.4H"
+    
+    def __init__(self, storage_options: dict=None):
+        """
+        Creates a storage passing storage_options to FFStore
+        """
+        super().__init__()
+        if storage_options is not None:
+            print("storage:", self.STORAGE_OPTIONS)
+            FormatV04H.STORAGE_OPTIONS.update(storage_options)
+
+    
+    def init_store(self, path: str, mode: str = "r") -> FSStore:
+        """
+        Not ideal. Stores should remain hidden
+        TODO: could also check dimension_separator
+        """
+
+        kwargs = {
+            "dimension_separator": "/",
+            "normalize_keys": False,
+        }
+
+        mkdir = True
+        if "r" in mode or path.startswith("http") or path.startswith("s3"):
+            # Could be simplified on the fsspec side
+            mkdir = False
+        if mkdir:
+            kwargs["auto_mkdir"] = True
+
+        store = FSStore(
+            path,
+            mode=mode,
+            **kwargs,
+            **FormatV04H.STORAGE_OPTIONS
+        )  # TODO: open issue for using Path
+        LOGGER.debug("Created nested FSStore(%s, %s, %s)", path, mode, kwargs)
+        return store   
+
+
+CurrentFormat = FormatV04H

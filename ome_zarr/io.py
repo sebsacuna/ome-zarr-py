@@ -46,7 +46,9 @@ class ZarrLocation:
         self.__store = loader.init_store(self.__path, mode)
 
         self.__init_metadata()
+        """
         detected = detect_format(self.__metadata, loader)
+        
         LOGGER.debug("ZarrLocation.__init__ %s detected: %s", path, detected)
         if detected != fmt:
             LOGGER.warning(
@@ -55,6 +57,7 @@ class ZarrLocation:
             self.__fmt = detected
             self.__store = detected.init_store(self.__path, mode)
             self.__init_metadata()
+        """
 
     def __init_metadata(self) -> None:
         """
