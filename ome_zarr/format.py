@@ -221,7 +221,8 @@ class FormatV04(FormatV03):
     introduce coordinate_transformations in multiscales (Nov 2021)
     """
 
-    REQUIRED_PLATE_WELL_KEYS = {"path": str, "rowIndex": int, "columnIndex": int}
+    REQUIRED_PLATE_WELL_KEYS = {"path": str,
+                                "rowIndex": int, "columnIndex": int}
 
     @property
     def version(self) -> str:
@@ -235,7 +236,8 @@ class FormatV04(FormatV03):
             raise ValueError("%s is not defined in the list of rows", row)
         rowIndex = rows.index(row)
         if column not in columns:
-            raise ValueError("%s is not defined in the list of columns", column)
+            raise ValueError(
+                "%s is not defined in the list of columns", column)
         columnIndex = columns.index(column)
         return {"path": str(well), "rowIndex": rowIndex, "columnIndex": columnIndex}
 
@@ -244,7 +246,8 @@ class FormatV04(FormatV03):
     ) -> None:
         super().validate_well_dict(well, rows, columns)
         if len(well["path"].split("/")) != 2:
-            raise ValueError("%s path must exactly be composed of 2 groups", well)
+            raise ValueError(
+                "%s path must exactly be composed of 2 groups", well)
         row, column = well["path"].split("/")
         if row not in rows:
             raise ValueError("%s is not defined in the plate rows", row)
@@ -264,7 +267,8 @@ class FormatV04(FormatV03):
         for shape in shapes:
             assert len(shape) == len(data_shape)
             scale = [full / level for full, level in zip(data_shape, shape)]
-            coordinate_transformations.append([{"type": "scale", "scale": scale}])
+            coordinate_transformations.append(
+                [{"type": "scale", "scale": scale}])
 
         return coordinate_transformations
 
@@ -301,7 +305,8 @@ class FormatV04(FormatV03):
                 )
             # first transformation must be scale
             if types[0] != "scale":
-                raise ValueError("First coordinate_transformations must be 'scale'")
+                raise ValueError(
+                    "First coordinate_transformations must be 'scale'")
             first = transformations[0]
             if "scale" not in transformations[0]:
                 raise ValueError("Missing scale argument in: %s" % first)
@@ -313,7 +318,8 @@ class FormatV04(FormatV03):
                 )
             for value in scale:
                 if not isinstance(value, (float, int)):
-                    raise ValueError(f"'scale' values must all be numbers: {scale}")
+                    raise ValueError(
+                        f"'scale' values must all be numbers: {scale}")
 
             # validate translations...
             translation_types = [t == "translation" for t in types]
@@ -348,7 +354,7 @@ class FormatV04H(FormatV04):
     @property
     def version(self) -> str:
         return "0.4H"
-    
+
     def init_store(self, path: str, mode: str = "r") -> FSStore:
         """
         Not ideal. Stores should remain hidden
@@ -371,7 +377,6 @@ class FormatV04H(FormatV04):
 
         storage_options = {'headers': {'Authorization': f'Bearer {bearer}'}}
 
-
         store = FSStore(
             path,
             mode=mode,
@@ -379,7 +384,7 @@ class FormatV04H(FormatV04):
             **storage_options
         )  # TODO: open issue for using Path
         LOGGER.debug("Created nested FSStore(%s, %s, %s)", path, mode, kwargs)
-        return store   
+        return store
 
 
 CurrentFormat = FormatV04H
